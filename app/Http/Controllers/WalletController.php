@@ -10,6 +10,7 @@ use App\Repository\IWalletRepository;
 use App\Repository\IWalletTransactionRepository;
 use App\Services\PaymentServices\Payloads\InitiatePayment;
 use App\Services\PaymentServices\Payloads\VerifyPayment;
+use App\Services\PaymentServices\PaymentException;
 use App\Services\PaymentServices\PaymentServicesFactory;
 use App\Services\PaymentServices\Responses\PaymentInitiated;
 use App\Traits\ApiResponse;
@@ -100,10 +101,15 @@ class WalletController extends Controller
 
         $payment = PaymentServicesFactory::get_payment_intance();
 
+        try {
+              /** @var PaymentInitiated  */
+            $response = $payment->initiate_payment(new InitiatePayment($request->amount, $wallet->email, $wallet->currency));
 
-        /** @var PaymentInitiated  */
-        $response = $payment->initiate_payment(new InitiatePayment($request->amount, $wallet->email, $wallet->currency));
+        }catch(PaymentException $e) {
+            return $this->server_error($e->getMessage());
+        }
 
+      
 
         //create wallet funding traansaction
 
@@ -190,8 +196,5 @@ class WalletController extends Controller
     }
 
 
-    public function fund_wallet_action() {
-
-    }
-
+ 
 }

@@ -19,7 +19,7 @@ trait ApiResponse {
     }
 
 
-    public function server_error() {
-        return response()->json(["status" => false, "message" => "Server Error", "data" => null], 500);
+    public function server_error($message = null) {
+        return response()->json(["status" => false, "message" => ($message)? $message : "Server Error", "data" => null], 500);
     }
 }
