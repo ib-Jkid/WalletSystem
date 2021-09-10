@@ -35,7 +35,7 @@ class WebhookController extends Controller
 
         $payment = PaymentServicesFactory::get_payment_intance(PAYSTACK_GATEWAY);
 
-        $response = $payment->verify_payment(new VerifyPayment($request->reference,$request->amount));
+        $response = $payment->verify_payment(new VerifyPayment($request->reference,0));
 
         //check for pending transactions
         $funding_transaction = $this->wallet_funding_repository->find_by_columns(["gateway","gateway_reference","status"],[$response->gateway, $response->reference,false]);

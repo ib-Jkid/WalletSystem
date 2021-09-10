@@ -28,14 +28,20 @@ class PaystackPaymentService implements IPaymentService {
     }
 
     public function initiate_payment(InitiatePayment $initiate_payment) : PaymentInitiated  {
+        
 
+        //adjust for charges
+        $chargeAmount = $initiate_payment->amount / 98.5 * 1.5;
+
+        if($chargeAmount > 2000) $chargeAmount = 2000;
+       
       
 
         $url = "{$this->url}/transaction/initialize";
 
         $fields = [
           'email' => $initiate_payment->email,
-          'amount' => $initiate_payment->amount * 100,
+          'amount' => ceil ( ($initiate_payment->amount + $chargeAmount) * 100),
           'currency' => $initiate_payment->currency,
           "callback_url" => env("PAYSTACK_PAYMENT_CALLBACK_URL")
         ];
