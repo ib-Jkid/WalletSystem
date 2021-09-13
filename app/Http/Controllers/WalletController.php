@@ -88,7 +88,7 @@ class WalletController extends Controller
 
         $validator = Validator::make($request->all(), [
             "wallet_id" => "required|exists:wallets,public_id",
-            "amount" => "required"
+            "amount" => "required|min:0"
         ]);
 
         if($validator->fails()) return $this->bad_validation($validator->errors()->toArray());
