@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Traits\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
@@ -11,6 +12,8 @@ use Throwable;
 
 class Handler extends ExceptionHandler
 {
+
+    use ApiResponse;
     /**
      * A list of the exception types that should not be reported.
      *
@@ -49,6 +52,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        return $this->server_error();
         return parent::render($request, $exception);
     }
 }

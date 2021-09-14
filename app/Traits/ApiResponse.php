@@ -15,11 +15,17 @@ trait ApiResponse {
 
 
     protected function bad_validation($validationErrors) {
-        return response()->json(["status" => false, "message" => $validationErrors, "data" => null], 401);
+        return response()->json(["status" => false, "message" => $validationErrors, "data" => null], 400);
     }
 
 
     protected function server_error($message = null) {
         return response()->json(["status" => false, "message" => ($message)? $message : "Server Error", "data" => null], 500);
+    }
+
+
+    protected function unauthorised($message = null) {
+        return response()->json(["status" => false, "message" => ($message)? $message : "Unathorised", "data" => null], 401);
+
     }
 }
