@@ -4,22 +4,22 @@ namespace App\Traits;
 
 
 trait ApiResponse {
-    private function ok($data) {
+    protected function ok($data) {
         return response()->json(["status" => true,  "message" => "successfull", "data" => $data,], 200);
     }
 
 
-    private function not_found() {
+    protected function not_found() {
         return response()->json(["status" => false, "message" => "Not found", "data" => null], 404);
     }
 
 
-    public function bad_validation($validationErrors) {
+    protected function bad_validation($validationErrors) {
         return response()->json(["status" => false, "message" => $validationErrors, "data" => null], 401);
     }
 
 
-    public function server_error($message = null) {
+    protected function server_error($message = null) {
         return response()->json(["status" => false, "message" => ($message)? $message : "Server Error", "data" => null], 500);
     }
 }

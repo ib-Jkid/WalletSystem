@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Validator;
 class WalletController extends Controller
 {
 
-    use ApiResponse;
+ 
 
     private $wallet_repository;
     private $wallet_funding_transaction_repository;
@@ -47,34 +47,34 @@ class WalletController extends Controller
  
     //
 
-    public function create(Request $request) {
+    // public function create(Request $request) {
      
-        $validator = Validator::make($request->all(), [
-           "currency" => "required|in:".implode(",",SUPPORTED_CURRENCY),
-           "email" => "required|unique:wallets"
-        ]);
+    //     $validator = Validator::make($request->all(), [
+    //        "currency" => "required|in:".implode(",",SUPPORTED_CURRENCY),
+    //        "email" => "required|unique:wallets"
+    //     ]);
 
-        if($validator->fails()) return $this->bad_validation($validator->errors()->toArray());
+    //     if($validator->fails()) return $this->bad_validation($validator->errors()->toArray());
 
       
-        $wallet = $this->wallet_repository->create([
-            "public_id" => Uuid::uuid(),
-            "currency" => $request->currency,
-            "amount" => 0,
-            "email" => $request->email
+    //     $wallet = $this->wallet_repository->create([
+    //         "public_id" => Uuid::uuid(),
+    //         "currency" => $request->currency,
+    //         "amount" => 0,
+    //         "email" => $request->email
            
-        ]);
+    //     ]);
 
 
-        return $this->ok(WalletResource::make($wallet));
+    //     return $this->ok(WalletResource::make($wallet));
 
 
-    }
+    // }
 
 
-    public function balance_enquiry($wallet_id) { 
+    public function balance_enquiry() { 
  
-        $wallet = $this->wallet_repository->find_by_public_id($wallet_id);
+        $wallet = auth()->user()->wallet;
 
 
         if(!$wallet) return $this->not_found();
@@ -87,13 +87,12 @@ class WalletController extends Controller
     public function initiate_wallet_funding(Request $request) {
 
         $validator = Validator::make($request->all(), [
-            "wallet_id" => "required|exists:wallets,public_id",
             "amount" => "required|min:0"
         ]);
 
         if($validator->fails()) return $this->bad_validation($validator->errors()->toArray());
 
-        $wallet = $this->wallet_repository->find_by_public_id($request->wallet_id);
+        $wallet = auth()->user()->wallet;
 
 
         if(!$wallet) return $this->not_found();
@@ -132,9 +131,9 @@ class WalletController extends Controller
     }
 
 
-    public function transactions(Request $request, string $wallet_id) {
+    public function transactions(Request $request) {
 
-        $wallet = $this->wallet_repository->find_by_public_id($wallet_id);
+        $wallet = auth()->user()->wallet;
 
         if(!$wallet) return $this->not_found();
 
@@ -147,13 +146,14 @@ class WalletController extends Controller
     public function fund_wallet(Request $request) {
 
         $validator = Validator::make($request->all(),[
-            "reference" => "required",
-            "wallet_id" => "required"
+            "reference" => "required"
         ]);
 
         if($validator->fails()) return $this->bad_validation($validator->errors()->toArray());
 
-        $funding_transaction = $this->wallet_funding_transaction_repository->find_by_columns(["gateway_reference","status"],[$request->reference,false]);
+        $wallet = auth()->user()->wallet;
+
+        $funding_transaction = $this->wallet_funding_transaction_repository->find_by_columns(["gateway_reference","status","wallet_id"],[$request->reference,false,$wallet->id]);
 
         if(!$funding_transaction) return $this->not_found();
 
@@ -183,7 +183,9 @@ class WalletController extends Controller
         }
 
 
-        $wallet = $this->wallet_repository->find($funding_transaction->wallet_id);
+        $wallet = $this->wallet_repository->find_by_public_id($wallet->public_id);
+
+
 
 
         return $this->ok(WalletResource::make($wallet));
